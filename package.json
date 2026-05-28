@@ -1,0 +1,59 @@
+{
+  "name": "tanstack-query-typed",
+  "version": "0.1.0",
+  "description": "A tiny, fully-typed layer over TanStack Query: strongly typed keys, payloads, responses, and a typed QueryClient for queries and mutations.",
+  "type": "module",
+  "sideEffects": false,
+  "license": "MIT",
+  "author": "Apperside <info@apperside.com>",
+  "keywords": [
+    "tanstack",
+    "tanstack-query",
+    "react-query",
+    "typescript",
+    "typed",
+    "type-safe",
+    "query",
+    "query-key",
+    "query-client",
+    "mutation",
+    "mutation-key",
+    "react",
+    "hooks"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "npm run typecheck && tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "^5.100.0",
+    "@types/react": "^19.0.0",
+    "expect-type": "^1.3.0",
+    "react": "^19.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.0"
+  }
+}
