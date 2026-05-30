@@ -1,0 +1,18 @@
+# Pre-commit automation for the website. The site lives in a sub-directory of the
+# repo, so the installed git hook (see `npm run hooks:install`) points lefthook at
+# this file explicitly. Commands are scoped to website/ via `root`, which both
+# filters the staged-file list to this sub-tree and runs the command from here so
+# prettier / eslint resolve the website config.
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      root: website/
+      glob: '*.{ts,tsx,js,mjs,jsx,css,json,md,html}'
+      run: npx prettier --write {staged_files}
+      stage_fixed: true
+    lint:
+      root: website/
+      glob: '*.{ts,tsx}'
+      run: npx eslint --fix {staged_files}
+      stage_fixed: true
