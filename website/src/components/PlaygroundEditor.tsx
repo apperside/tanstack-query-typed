@@ -4,11 +4,19 @@ import Editor, { loader, type Monaco } from '@monaco-editor/react';
 // than the `monaco-editor` barrel that registers every bundled language. This
 // keeps the (route-isolated) playground chunk to just what the demo needs.
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
-import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
+// The standalone TS contribution registers the language + workers but, unlike the
+// full `editor.main` barrel, does NOT attach the namespace onto `languages`. We
+// import it as a namespace and wire it up ourselves (see below).
+import * as tsContribution from 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
 import { LIB_DTS, SEED_CODE } from './playgroundTypes';
+
+// `monaco.languages.typescript` is only assigned by the full `editor.main` entry.
+// Since we import the lean editor API, attach the TypeScript namespace manually so
+// `typescriptDefaults` (compiler options + extra libs) is available.
+(monaco.languages as { typescript?: unknown }).typescript = tsContribution;
 
 // Self-host Monaco's workers (no CDN). Only the editor + TypeScript workers are
 // wired up — the json/css/html language services aren't needed here, which keeps
