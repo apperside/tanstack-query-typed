@@ -8,6 +8,10 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 // full `editor.main` barrel, does NOT attach the namespace onto `languages`. We
 // import it as a namespace and wire it up ourselves (see below).
 import * as tsContribution from 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js';
+// Syntax highlighting comes from the basic-languages Monarch grammar, which is a
+// separate contribution from the language service above. Without it the editor
+// renders uncolored plain text.
+import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution.js';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
