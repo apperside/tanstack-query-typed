@@ -1,4 +1,6 @@
-import { defineConfig } from 'vite';
+import { copyFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { tanstackRouter } from '@tanstack/router-plugin/vite';
@@ -10,6 +12,23 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite';
  */
 const base = process.env.BASE_PATH ?? '/';
 
+/**
+ * GitHub Pages has no SPA fallback: a hard request to a client-side route
+ * (e.g. /playground) finds no matching file and 404s. Copying the built
+ * index.html to 404.html lets Pages serve the app for any unknown path, so
+ * the router can read the URL and render the right route. Assets use the
+ * absolute, base-prefixed URLs, so they resolve regardless of the path.
+ */
+function spaFallback(): Plugin {
+  return {
+    name: 'spa-404-fallback',
+    closeBundle() {
+      const dist = resolve(__dirname, 'dist');
+      copyFileSync(resolve(dist, 'index.html'), resolve(dist, '404.html'));
+    },
+  };
+}
+
 export default defineConfig({
   base,
   plugins: [
@@ -17,6 +36,7 @@ export default defineConfig({
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     react(),
     tailwindcss(),
+    spaFallback(),
   ],
   build: {
     target: 'es2022',
