@@ -8,6 +8,7 @@ import { IconArrowRight, IconGitHub } from '../components/icons';
 import { EASE_OUT } from '../lib/motion';
 import { site } from '../lib/site';
 import { heroSnippet } from '../lib/snippets';
+import { Logo } from '../components/Logo';
 
 export function Hero() {
   const reduceMotion = useReducedMotion();
@@ -23,6 +24,14 @@ export function Hero() {
   return (
     <section className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 pt-16 pb-12 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-28 lg:pb-24">
       <div className="flex flex-col items-start text-left">
+        <div
+          aria-label={`${site.name} — home`}
+          className="group flex items-center gap-2 text-foreground"
+        >
+          <Logo className="h-12 w-12 text-accent transition-transform group-hover:scale-110" />
+          <span className="font-mono text-xl font-medium tracking-tight">{site.name}</span>
+        </div>
+
         <motion.div {...fade(0)}>
           <Badge>
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -52,11 +61,6 @@ export function Hero() {
           {...fade(0.15)}
           className="mt-8 flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center"
         >
-          <Link to="/playground" className={buttonClasses('primary', 'lg', 'group')}>
-            Try the playground
-            <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-
           <div className="flex items-center gap-2 rounded-lg border border-border bg-card/60 py-2 pr-2 pl-3.5 font-mono text-sm">
             <span className="text-muted select-none">$</span>
             <span className="truncate text-foreground/90">{site.install}</span>
@@ -64,16 +68,23 @@ export function Hero() {
           </div>
         </motion.div>
 
-        <motion.a
-          {...fade(0.2)}
-          href={site.repo}
-          target="_blank"
-          rel="noreferrer noopener"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
-        >
-          <IconGitHub className="h-4 w-4" />
-          Star it on GitHub
-        </motion.a>
+        <div className="mt-3 flex w-full flex-row items-center gap-5">
+          <Link to="/playground" className={buttonClasses('primary', 'lg', 'group')}>
+            Try the playground
+            <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+
+          <motion.a
+            {...fade(0.2)}
+            href={site.repo}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
+          >
+            <IconGitHub className="h-4 w-4" />
+            Star it on GitHub
+          </motion.a>
+        </div>
       </div>
 
       <motion.div
