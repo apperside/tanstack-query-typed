@@ -1,5 +1,7 @@
 # tanstack-query-typed
 
+<img width="1152" height="542" alt="Screenshot 2026-06-04 at 04 26 25" src="https://github.com/user-attachments/assets/c7771fcb-fb8b-45d6-b95c-59bf0707f6cf" />
+
 A tiny, fully-typed layer over [TanStack Query](https://tanstack.com/query) that gives
 **queries and mutations strongly typed keys, payloads and responses** — with zero runtime overhead.
 
