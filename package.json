@@ -6,6 +6,10 @@
   "sideEffects": false,
   "license": "MIT",
   "author": "Apperside <info@apperside.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apperside/tanstack-query-typed.git"
+  },
   "keywords": [
     "tanstack",
     "tanstack-query",
