@@ -1,6 +1,6 @@
 {
   "name": "tanstack-query-typed",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A tiny, fully-typed layer over TanStack Query: strongly typed keys, payloads, responses, and a typed QueryClient for queries and mutations.",
   "type": "module",
   "sideEffects": false,
