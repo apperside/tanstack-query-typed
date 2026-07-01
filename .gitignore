@@ -3,3 +3,5 @@ dist/
 *.log
 .DS_Store
 *.tsbuildinfo
+.claude/mind.mv2
+.claude/mind.mv2.lock

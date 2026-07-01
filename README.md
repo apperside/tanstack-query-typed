@@ -2,6 +2,8 @@
 
 <img alt="tanstack-query-typed" src="assets/readme-cover-image.png" />
 
+[Website](https://apperside.github.io/tanstack-query-typed/) · [Live Playground](https://apperside.github.io/tanstack-query-typed/playground)
+
 A tiny, fully-typed layer over [TanStack Query](https://tanstack.com/query) that gives
 **queries and mutations strongly typed keys, payloads and responses** — with zero runtime overhead.
 
