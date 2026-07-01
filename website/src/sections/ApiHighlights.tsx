@@ -31,7 +31,7 @@ export function ApiHighlights() {
             One client, <span className="text-accent">every method narrowed</span>
           </>
         }
-        description="useAppQueryClient() returns the client you already use — each key-taking method checked against your registry. Reads return the registered shape; writes are type-checked."
+        description="useQueryClient() returns the client you already use — each key-taking method checked against your registry. Reads return the registered shape; writes are type-checked."
       />
 
       <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">

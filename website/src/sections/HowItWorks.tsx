@@ -15,7 +15,7 @@ const steps = [
   {
     n: '02',
     title: 'Use the typed hooks',
-    body: 'useAppQuery and useAppMutation take the key as their first argument. Variables, data and ctx.queryKey are all inferred from the registry.',
+    body: 'useQuery and useMutation take the key as their first argument; useIsFetching and useIsMutating check their filter keys. Variables, data and ctx.queryKey are all inferred from the registry.',
     filename: 'user-profile.tsx',
     code: useHooksSnippet,
   },

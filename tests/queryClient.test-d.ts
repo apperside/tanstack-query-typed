@@ -1,5 +1,5 @@
 /**
- * Compile-time type tests for `useAppQueryClient` / `TypedQueryClient`.
+ * Compile-time type tests for `useQueryClient` / `TypedQueryClient`.
  *
  * Checked by `npm run typecheck`. Uses `expect-type` for precise positive
  * assertions; the negative `@ts-expect-error` cases live in `examples/usage.ts`.
@@ -9,10 +9,10 @@
  */
 import { expectTypeOf } from 'expect-type';
 
-import { useAppQueryClient } from 'tanstack-query-typed';
+import { useQueryClient } from 'tanstack-query-typed';
 
 export function _typedQueryClientTests() {
-  const qc = useAppQueryClient();
+  const qc = useQueryClient();
 
   // ----- Single-queryKey methods ---------------------------------------------
 

@@ -46,7 +46,7 @@ declare module 'tanstack-query-typed' {
     isPending: boolean;
   }
 
-  export function useAppQuery<K extends keyof AppQueriesMap, TData = QueryResponse<K>>(
+  export function useQuery<K extends keyof AppQueriesMap, TData = QueryResponse<K>>(
     queryKey: AppQueryKey<K>,
     options?: {
       queryFn?: (ctx: { queryKey: AppQueryKey<K> }) => QueryResponse<K> | Promise<QueryResponse<K>>;
@@ -55,7 +55,7 @@ declare module 'tanstack-query-typed' {
     },
   ): QueryResult<TData>;
 
-  export function useAppMutation<K extends keyof AppMutationsMap>(
+  export function useMutation<K extends keyof AppMutationsMap>(
     mutationKey: AppMutationKey<K>,
     options?: {
       mutationFn?: (variables: MutationPayload<K>) => MutationResponse<K> | Promise<MutationResponse<K>>;
@@ -66,7 +66,7 @@ declare module 'tanstack-query-typed' {
 `;
 
 /** Starting code shown in the editor (and in the static fallback before it loads). */
-export const SEED_CODE = `import { useAppQuery, useAppMutation } from 'tanstack-query-typed';
+export const SEED_CODE = `import { useQuery, useMutation } from 'tanstack-query-typed';
 
 // 1. Register your queries and mutations once, by name.
 declare module 'tanstack-query-typed' {
@@ -92,16 +92,16 @@ declare module 'tanstack-query-typed' {
 // 2. Use them. Keys, payloads and responses are all type-checked.
 
 // \`userId\` is required because fetchUser declares extraKeys.
-const user = useAppQuery(['fetchUser', { userId: 'u-1' }], {
+const user = useQuery(['fetchUser', { userId: 'u-1' }], {
   queryFn: (ctx) => ({ id: ctx.queryKey[1].userId, name: 'Ada' }),
 });
 
 // No extraKeys -> the key is just ['fetchSettings'].
-const settings = useAppQuery(['fetchSettings'], {
+const settings = useQuery(['fetchSettings'], {
   queryFn: () => ({ theme: 'light' as const }),
 });
 
-const updateUser = useAppMutation(['updateUser', { tenantId: 't-1' }], {
+const updateUser = useMutation(['updateUser', { tenantId: 't-1' }], {
   mutationFn: (vars) => Promise.resolve({ updatedAt: vars.id + ':' + vars.name }),
 });
 updateUser.mutate({ id: '1', name: 'Ada' });

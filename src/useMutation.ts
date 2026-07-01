@@ -1,4 +1,4 @@
-import { useMutation, type UseMutationResult } from '@tanstack/react-query';
+import { useMutation as useTanstackMutation, type UseMutationResult } from '@tanstack/react-query';
 
 import type {
   AppMutationKey,
@@ -21,13 +21,13 @@ import type {
  * @param options - The usual `useMutation` options, minus `mutationKey`.
  *
  * @example
- * const mutation = useAppMutation(['updateUser', { tenantId: 't-1' }], {
+ * const mutation = useMutation(['updateUser', { tenantId: 't-1' }], {
  *   mutationFn: (vars) => api.updateUser(vars), // `vars` is fully typed
  * });
  *
  * mutation.mutate({ id: '1', name: 'Ada' }); // payload is type-checked
  */
-export function useAppMutation<
+export function useMutation<
   K extends keyof AppMutationsMap,
   TData = MutationResponse<K>,
   TError = Error,
@@ -36,7 +36,7 @@ export function useAppMutation<
   mutationKey: AppMutationKey<K>,
   options?: AppMutationOptions<K, TData, TError, TContext>,
 ): UseMutationResult<TData, TError, MutationPayload<K>, TContext> {
-  return useMutation<TData, TError, MutationPayload<K>, TContext>({
+  return useTanstackMutation<TData, TError, MutationPayload<K>, TContext>({
     mutationKey,
     ...options,
   });

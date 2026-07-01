@@ -1,5 +1,5 @@
 /**
- * Compile-time type tests for `useAppMutation` and the mutation helper types.
+ * Compile-time type tests for `useMutation` and the mutation helper types.
  *
  * Checked by `npm run typecheck`. Uses `expect-type` for precise positive
  * assertions; the negative `@ts-expect-error` cases live in `examples/usage.ts`.
@@ -14,7 +14,7 @@
 import { expectTypeOf } from 'expect-type';
 
 import {
-  useAppMutation,
+  useMutation,
   type AppMutationKey,
   type AppMutationOptions,
   type MutationExtraKeys,
@@ -52,7 +52,7 @@ expectTypeOf<Parameters<FixtureMutationFn>[0]>().toEqualTypeOf<{ amount: number 
 export function _hookReturnTypeTests() {
   // `mutationFn` returns exactly the registered response, so `TData` resolves
   // to that response (the generic default). This is the common case.
-  const m = useAppMutation(['fixtureWithExtra', { scope: 'global' }], {
+  const m = useMutation(['fixtureWithExtra', { scope: 'global' }], {
     mutationFn: () => Promise.resolve({ ok: true as const }),
   });
 
@@ -69,13 +69,13 @@ export function _hookReturnTypeTests() {
 
   // Entry without `extraKeys`: the key is a single-element tuple, and `vars`
   // inside `mutationFn` is bound to the registered payload.
-  const n = useAppMutation(['fixtureNoExtra'], {
+  const n = useMutation(['fixtureNoExtra'], {
     mutationFn: (vars) => Promise.resolve({ receiptId: vars.reason }),
   });
   expectTypeOf(n.data).toEqualTypeOf<{ receiptId: string } | undefined>();
 
   // Explicit `TData` override narrows the result while payload stays bound.
-  const o = useAppMutation<'fixtureWithExtra', { custom: number }>(
+  const o = useMutation<'fixtureWithExtra', { custom: number }>(
     ['fixtureWithExtra', { scope: 'global' }],
     { mutationFn: (vars) => Promise.resolve({ custom: vars.amount }) },
   );
@@ -85,7 +85,7 @@ export function _hookReturnTypeTests() {
   // `mutationFn` may return a wider type than the registered response; in that
   // case TanStack-style inference widens `TData` to that return type. This
   // documents the behavior so it doesn't regress silently.
-  const wider = useAppMutation(['fixtureWithExtra', { scope: 'global' }], {
+  const wider = useMutation(['fixtureWithExtra', { scope: 'global' }], {
     mutationFn: (vars) => Promise.resolve({ ok: true as const, echoed: vars.amount }),
   });
   expectTypeOf(wider.data).toEqualTypeOf<{ ok: true; echoed: number } | undefined>();

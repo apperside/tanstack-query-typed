@@ -1,5 +1,5 @@
 import {
-  useQueryClient,
+  useQueryClient as useTanstackQueryClient,
   type CancelOptions,
   type EnsureQueryDataOptions,
   type FetchQueryOptions,
@@ -216,16 +216,16 @@ export function asTypedQueryClient(client: QueryClient): TypedQueryClient {
 
 /**
  * React hook that returns the current `QueryClient` strongly typed against the
- * {@link AppQueriesMap} / {@link AppMutationsMap} registries. Mirrors
+ * {@link AppQueriesMap} / {@link AppMutationsMap} registries. Mirrors TanStack's
  * `useQueryClient` — pass an explicit client to override the context.
  *
  * @example
  * function Component() {
- *   const qc = useAppQueryClient();
+ *   const qc = useQueryClient();
  *   const cached = qc.getQueryData(['fetchUser', { userId: '1' }]);
  *   qc.invalidateQueries({ queryKey: ['fetchUser'] });
  * }
  */
-export function useAppQueryClient(queryClient?: QueryClient): TypedQueryClient {
-  return useQueryClient(queryClient) as unknown as TypedQueryClient;
+export function useQueryClient(queryClient?: QueryClient): TypedQueryClient {
+  return useTanstackQueryClient(queryClient) as unknown as TypedQueryClient;
 }

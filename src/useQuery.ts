@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { useQuery as useTanstackQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import type {
   AppQueriesMap,
@@ -20,17 +20,17 @@ import type {
  * @param options - The usual `useQuery` options, minus `queryKey`.
  *
  * @example
- * const user = useAppQuery(['fetchUser', { userId: '1' }], {
+ * const user = useQuery(['fetchUser', { userId: '1' }], {
  *   queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId), // `userId` is typed
  * });
  *
  * @example // narrowing TData with `select`
- * const userName = useAppQuery(['fetchUser', { userId: '1' }], {
+ * const userName = useQuery(['fetchUser', { userId: '1' }], {
  *   queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId),
  *   select: (data) => data.name, // `userName.data` becomes `string | undefined`
  * });
  */
-export function useAppQuery<
+export function useQuery<
   K extends keyof AppQueriesMap,
   TQueryFnData = QueryResponse<K>,
   TError = Error,
@@ -39,7 +39,7 @@ export function useAppQuery<
   queryKey: AppQueryKey<K>,
   options?: AppQueryOptions<K, TQueryFnData, TError, TData>,
 ): UseQueryResult<TData, TError> {
-  return useQuery<TQueryFnData, TError, TData, AppQueryKey<K>>({
+  return useTanstackQuery<TQueryFnData, TError, TData, AppQueryKey<K>>({
     queryKey,
     ...options,
   });

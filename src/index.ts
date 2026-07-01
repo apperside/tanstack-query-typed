@@ -1,6 +1,8 @@
-export { useAppMutation } from './useAppMutation';
-export { useAppQuery } from './useAppQuery';
-export { asTypedQueryClient, useAppQueryClient } from './typedQueryClient';
+export { useMutation } from './useMutation';
+export { useQuery } from './useQuery';
+export { useIsFetching } from './useIsFetching';
+export { useIsMutating } from './useIsMutating';
+export { asTypedQueryClient, useQueryClient } from './typedQueryClient';
 
 export type {
   AppMutationsMap,

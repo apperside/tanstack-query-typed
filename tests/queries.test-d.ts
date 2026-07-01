@@ -1,5 +1,5 @@
 /**
- * Compile-time type tests for `useAppQuery` and the query helper types.
+ * Compile-time type tests for `useQuery` and the query helper types.
  *
  * Checked by `npm run typecheck`. Uses `expect-type` for precise positive
  * assertions; the negative `@ts-expect-error` cases live in `examples/usage.ts`.
@@ -10,7 +10,7 @@
 import { expectTypeOf } from 'expect-type';
 
 import {
-  useAppQuery,
+  useQuery,
   type AppQueryKey,
   type AppQueryOptions,
   type QueryExtraKeys,
@@ -55,19 +55,19 @@ expectTypeOf<Parameters<FixtureQueryFn>[0]['queryKey']>().toEqualTypeOf<
 export function _queryHookReturnTypeTests() {
   // `queryFn` returns exactly the registered response, so `TData` is that
   // response. `ctx.queryKey[1]` is the typed `extraKeys`.
-  const q = useAppQuery(['fixtureQueryWithExtra', { id: 'a' }], {
+  const q = useQuery(['fixtureQueryWithExtra', { id: 'a' }], {
     queryFn: (ctx) => Promise.resolve({ id: ctx.queryKey[1].id, label: 'L' }),
   });
   expectTypeOf(q.data).toEqualTypeOf<{ id: string; label: string } | undefined>();
 
   // Entry without `extraKeys`: the key is a single-element tuple.
-  const r = useAppQuery(['fixtureQueryNoExtra'], {
+  const r = useQuery(['fixtureQueryNoExtra'], {
     queryFn: () => Promise.resolve({ count: 5 }),
   });
   expectTypeOf(r.data).toEqualTypeOf<{ count: number } | undefined>();
 
   // `select` narrows `TData` while `TQueryFnData` stays the registered response.
-  const s = useAppQuery(['fixtureQueryWithExtra', { id: 'a' }], {
+  const s = useQuery(['fixtureQueryWithExtra', { id: 'a' }], {
     queryFn: (ctx) => Promise.resolve({ id: ctx.queryKey[1].id, label: 'L' }),
     select: (data) => data.label,
   });

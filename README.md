@@ -8,21 +8,29 @@ A tiny, fully-typed layer over [TanStack Query](https://tanstack.com/query) that
 
 [Website](https://apperside.github.io/tanstack-query-typed/) · [Live Playground](https://apperside.github.io/tanstack-query-typed/playground)
 
+The hooks keep the **same names as TanStack Query** — `useQuery`, `useMutation`,
+`useQueryClient`, `useIsFetching`, `useIsMutating`. Change only the import path
+(`@tanstack/react-query` → `tanstack-query-typed`) and everything else about your
+code stays the same — you just gain full typing.
+
 You declare your queries and mutations once in two central registries; from then on
-`useAppQuery`, `useAppMutation` and `useAppQueryClient` type-check the name, its
+`useQuery`, `useMutation` and `useQueryClient` type-check the name, its
 key segments, the variables passed to `mutate`, the data each one resolves to,
 and every key-taking method of the `QueryClient`.
 
 ```ts
+import { useQuery, useMutation } from 'tanstack-query-typed';
+// ^ same names as @tanstack/react-query — only the import path changes
+
 // Mutation
-const updateUser = useAppMutation(['updateUser', { tenantId: 't-1' }], {
+const updateUser = useMutation(['updateUser', { tenantId: 't-1' }], {
   mutationFn: (vars) => api.updateUser(vars),   // `vars` is fully typed
 });
 updateUser.mutate({ id: '1', name: 'Ada' });    // payload is type-checked,
                                                 // `updateUser.data` is typed too
 
 // Query
-const user = useAppQuery(['fetchUser', { userId: '1' }], {
+const user = useQuery(['fetchUser', { userId: '1' }], {
   queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId), // `userId` is typed
 });                                              // `user.data` is typed too
 ```
@@ -98,29 +106,29 @@ its key, so anything that affects the result must live in `extraKeys`):
 ### 2. Use the hooks
 
 ```ts
-import { useAppMutation, useAppQuery } from 'tanstack-query-typed';
+import { useMutation, useQuery } from 'tanstack-query-typed';
 
 function Example() {
   // --- Mutations --------------------------------------------------------------
-  const updateUser = useAppMutation(['updateUser', { tenantId: 't-1' }], {
+  const updateUser = useMutation(['updateUser', { tenantId: 't-1' }], {
     mutationFn: (vars) => api.updateUser(vars),
   });
-  const logout = useAppMutation(['logout'], {
+  const logout = useMutation(['logout'], {
     mutationFn: () => api.logout(),
   });
   updateUser.mutate({ id: '1', name: 'Ada' });
 
   // --- Queries ----------------------------------------------------------------
   // `ctx.queryKey[1]` is typed as the entry's `extraKeys`.
-  const user = useAppQuery(['fetchUser', { userId: '1' }], {
+  const user = useQuery(['fetchUser', { userId: '1' }], {
     queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId),
   });
-  const settings = useAppQuery(['fetchSettings'], {
+  const settings = useQuery(['fetchSettings'], {
     queryFn: () => api.getSettings(),
   });
 
   // `select` narrows `data` while leaving `queryFn`'s return tied to the registry.
-  const userName = useAppQuery(['fetchUser', { userId: '1' }], {
+  const userName = useQuery(['fetchUser', { userId: '1' }], {
     queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId),
     select: (data) => data.name, // `userName.data` becomes `string | undefined`
   });
@@ -132,28 +140,28 @@ function Example() {
 The compiler rejects mistakes:
 
 ```ts
-useAppMutation(['updateUser']);                 // ❌ missing required `extraKeys`
-useAppMutation(['logout', { tenantId: 't' }]);  // ❌ `logout` has no `extraKeys`
-useAppMutation(['nope']);                        // ❌ unknown mutation name
+useMutation(['updateUser']);                 // ❌ missing required `extraKeys`
+useMutation(['logout', { tenantId: 't' }]);  // ❌ `logout` has no `extraKeys`
+useMutation(['nope']);                        // ❌ unknown mutation name
 updateUser.mutate({ id: 1, name: 'Ada' });       // ❌ `id` must be a string
 
-useAppQuery(['fetchUser']);                      // ❌ missing required `extraKeys`
-useAppQuery(['fetchSettings', { userId: 'x' }]); // ❌ `fetchSettings` has no `extraKeys`
-useAppQuery(['nope']);                            // ❌ unknown query name
+useQuery(['fetchUser']);                      // ❌ missing required `extraKeys`
+useQuery(['fetchSettings', { userId: 'x' }]); // ❌ `fetchSettings` has no `extraKeys`
+useQuery(['nope']);                            // ❌ unknown query name
 ```
 
 ### 3. Use the typed `QueryClient`
 
-`useAppQueryClient()` returns the current `QueryClient` typed against your
+`useQueryClient()` returns the current `QueryClient` typed against your
 registries — every key-taking method (`getQueryData`, `setQueryData`,
 `invalidateQueries`, `fetchQuery`, …) is narrowed to registered keys and the
 registered response shape.
 
 ```ts
-import { useAppQueryClient } from 'tanstack-query-typed';
+import { useQueryClient } from 'tanstack-query-typed';
 
 function Example() {
-  const qc = useAppQueryClient();
+  const qc = useQueryClient();
 
   // Read cached data — return type comes from `AppQueriesMap`.
   const user = qc.getQueryData(['fetchUser', { userId: '1' }]);
@@ -214,11 +222,41 @@ qc.getQueryData(['fetchSettings', { userId: '1' }]);    // ❌ no `extraKeys`
 | `fetchInfiniteQuery` / `prefetchInfiniteQuery` / `ensureInfiniteQueryData`      | The registry has no pagination concept (no `pageParam` field on entries). Would need an `AppInfiniteQueriesMap` (or an opt-in flag on entries) to type these properly. |
 | `setQueryDefaults` / `getQueryDefaults`                                         | Per-query defaults — lower priority than `setMutationDefaults` (which is already wrapped). Straightforward to add when needed.        |
 
+### 4. Count in-flight queries and mutations
+
+`useIsFetching` and `useIsMutating` mirror TanStack's hooks of the same name and
+return a `number`. The filter key is checked against your registries — pass the
+full key or just the `[name]` prefix.
+
+```ts
+import { useIsFetching, useIsMutating } from 'tanstack-query-typed';
+
+function Example() {
+  const anyFetching = useIsFetching();                              // all queries
+  const fetchingUser = useIsFetching({ queryKey: ['fetchUser'] });  // by name
+  const fetchingOne = useIsFetching({
+    queryKey: ['fetchUser', { userId: '1' }],                       // exact key
+  });
+
+  const anyMutating = useIsMutating();                              // all mutations
+  const savingUser = useIsMutating({ mutationKey: ['updateUser'] }); // by name
+
+  return anyFetching + fetchingUser + fetchingOne + anyMutating + savingUser;
+}
+```
+
+The compiler rejects mistakes:
+
+```ts
+useIsFetching({ queryKey: ['nope'] });     // ❌ unknown query name
+useIsMutating({ mutationKey: ['nope'] });  // ❌ unknown mutation name
+```
+
 ## API
 
-### `useAppMutation(mutationKey, options?)`
+### `useMutation(mutationKey, options?)`
 
-A drop-in wrapper around `useMutation`. The signature mirrors TanStack's, except:
+A drop-in wrapper around TanStack's `useMutation`. The signature mirrors TanStack's, except:
 
 - `mutationKey` is the **first argument** and is typed as `[name]` or `[name, extraKeys]`.
 - `options` is the usual `UseMutationOptions` **without** `mutationKey`.
@@ -227,9 +265,9 @@ A drop-in wrapper around `useMutation`. The signature mirrors TanStack's, except
 
 Returns the standard `UseMutationResult`.
 
-### `useAppQuery(queryKey, options?)`
+### `useQuery(queryKey, options?)`
 
-A drop-in wrapper around `useQuery`. Same conventions:
+A drop-in wrapper around TanStack's `useQuery`. Same conventions:
 
 - `queryKey` is the **first argument** and is typed as `[name]` or `[name, extraKeys]`.
 - `options` is the usual `UseQueryOptions` **without** `queryKey`.
@@ -240,7 +278,7 @@ A drop-in wrapper around `useQuery`. Same conventions:
 
 Returns the standard `UseQueryResult`.
 
-### `useAppQueryClient(queryClient?)` / `asTypedQueryClient(client)`
+### `useQueryClient(queryClient?)` / `asTypedQueryClient(client)`
 
 A React hook (and a plain cast helper, for non-React contexts) that returns
 the current `QueryClient` typed as `TypedQueryClient`. Both are zero-runtime:
@@ -250,6 +288,18 @@ The `TypedQueryClient` type is `QueryClient` with every key-taking method
 overridden to accept only registered keys and to return the registered
 response shape. See the *Use the typed QueryClient* section above for the
 full list of covered methods.
+
+### `useIsFetching(filters?, queryClient?)` / `useIsMutating(filters?, queryClient?)`
+
+React hooks that mirror TanStack's `useIsFetching` / `useIsMutating` and return
+the `number` of matching in-flight queries / mutations. The only difference is
+that the filter key is typed against your registries:
+
+- `useIsFetching` — `filters.queryKey` is a registered query key or its `[name]` prefix.
+- `useIsMutating` — `filters.mutationKey` is a registered mutation key or its `[name]` prefix.
+
+Both take the same optional second `queryClient` argument as TanStack, to read
+from a specific client instead of the context one.
 
 ### Exported types
 

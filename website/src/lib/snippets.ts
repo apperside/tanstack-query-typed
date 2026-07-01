@@ -4,7 +4,7 @@
  * not executed code.
  */
 
-export const heroSnippet = `import { useAppQuery } from 'tanstack-query-typed';
+export const heroSnippet = `import { useQuery } from 'tanstack-query-typed';
 
 // 1 — Declare your query once, in a central registry
 declare module 'tanstack-query-typed' {
@@ -16,12 +16,12 @@ declare module 'tanstack-query-typed' {
   }
 }
 
-// 2 — Use it. The key, its params and \`data\` are all typed
-const user = useAppQuery(['fetchUser', { userId: '1' }], {
+// 2 — Same name as TanStack, just typed. The key, its params and \`data\`
+const user = useQuery(['fetchUser', { userId: '1' }], {
   queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId),
 });
 
-useAppQuery(['fetchUser']); // ❌ missing required \`extraKeys\`
+useQuery(['fetchUser']); // ❌ missing required \`extraKeys\`
 `;
 
 export const beforeSnippet = `import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -36,12 +36,13 @@ const qc = useQueryClient();
 qc.invalidateQueries({ queryKey: ['users'] }); // 'user' vs 'users'? no error
 `;
 
-export const afterSnippet = `import { useAppQuery, useAppQueryClient } from 'tanstack-query-typed';
+export const afterSnippet = `import { useQuery, useQueryClient } from 'tanstack-query-typed';
 
-// Every key is checked against your registry — autocompleted & safe
-useAppQuery(['fetchUser', { userId }], { queryFn: fetchUser });
+// Same names, same hooks — only the import changed. Now every key is
+// checked against your registry: autocompleted & safe.
+useQuery(['fetchUser', { userId }], { queryFn: fetchUser });
 
-const qc = useAppQueryClient();
+const qc = useQueryClient();
 qc.invalidateQueries({ queryKey: ['fetchUser'] }); // ✅ name-checked
 qc.invalidateQueries({ queryKey: ['userz'] }); //     ❌ unknown query name
 `;
@@ -73,33 +74,40 @@ declare module 'tanstack-query-typed' {
 }
 `;
 
-export const useHooksSnippet = `import { useAppMutation, useAppQuery } from 'tanstack-query-typed';
+export const useHooksSnippet = `import { useMutation, useQuery, useIsFetching, useIsMutating } from 'tanstack-query-typed';
 
 // Mutations — the \`mutate\` payload and \`.data\` are typed
-const updateUser = useAppMutation(['updateUser', { tenantId: 't-1' }], {
+const updateUser = useMutation(['updateUser', { tenantId: 't-1' }], {
   mutationFn: (vars) => api.updateUser(vars),
 });
 updateUser.mutate({ id: '1', name: 'Ada' });
 
 // Queries — \`ctx.queryKey[1]\` is typed as the entry's extraKeys
-const user = useAppQuery(['fetchUser', { userId: '1' }], {
+const user = useQuery(['fetchUser', { userId: '1' }], {
   queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId),
 });
+
+// Counters — the filter key is checked against your registry too
+const savingUser = useIsMutating({ mutationKey: ['updateUser'] });
+const loadingUser = useIsFetching({ queryKey: ['fetchUser'] });
 `;
 
-export const rejectedSnippet = `useAppMutation(['updateUser']); //                ❌ missing required extraKeys
-useAppMutation(['logout', { tenantId: 't' }]); //  ❌ logout has no extraKeys
-useAppMutation(['nope']); //                       ❌ unknown mutation name
-updateUser.mutate({ id: 1, name: 'Ada' }); //      ❌ id must be a string
+export const rejectedSnippet = `useMutation(['updateUser']); //                  ❌ missing required extraKeys
+useMutation(['logout', { tenantId: 't' }]); //   ❌ logout has no extraKeys
+useMutation(['nope']); //                        ❌ unknown mutation name
+updateUser.mutate({ id: 1, name: 'Ada' }); //    ❌ id must be a string
 
-useAppQuery(['fetchUser']); //                     ❌ missing required extraKeys
-useAppQuery(['fetchSettings', { userId: 'x' }]); // ❌ fetchSettings has no extraKeys
-useAppQuery(['nope']); //                          ❌ unknown query name
+useQuery(['fetchUser']); //                      ❌ missing required extraKeys
+useQuery(['fetchSettings', { userId: 'x' }]); // ❌ fetchSettings has no extraKeys
+useQuery(['nope']); //                           ❌ unknown query name
+
+useIsFetching({ queryKey: ['nope'] }); //        ❌ unknown query name
+useIsMutating({ mutationKey: ['nope'] }); //     ❌ unknown mutation name
 `;
 
-export const queryClientSnippet = `import { useAppQueryClient } from 'tanstack-query-typed';
+export const queryClientSnippet = `import { useQueryClient } from 'tanstack-query-typed';
 
-const qc = useAppQueryClient();
+const qc = useQueryClient();
 
 // Read cached data — the return type comes from your registry
 const user = qc.getQueryData(['fetchUser', { userId: '1' }]);

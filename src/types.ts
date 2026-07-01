@@ -52,7 +52,7 @@ export type AppMutationKey<K extends keyof AppMutationsMap> =
   [MutationExtraKeys<K>] extends [never] ? [K] : [K, MutationExtraKeys<K>];
 
 /**
- * Options for {@link useAppMutation}: the standard TanStack `UseMutationOptions`
+ * Options for {@link useMutation}: the standard TanStack `UseMutationOptions`
  * with `mutationKey` removed (it is supplied as the first argument instead) and
  * `TData` / `TVariables` pre-bound from {@link AppMutationsMap}.
  */
@@ -119,7 +119,7 @@ export type AppQueryKey<K extends keyof AppQueriesMap> =
   [QueryExtraKeys<K>] extends [never] ? [K] : [K, QueryExtraKeys<K>];
 
 /**
- * Options for {@link useAppQuery}: the standard TanStack `UseQueryOptions` with
+ * Options for {@link useQuery}: the standard TanStack `UseQueryOptions` with
  * `queryKey` removed (it is supplied as the first argument instead) and
  * `TQueryFnData` / `TQueryKey` pre-bound from {@link AppQueriesMap}.
  *

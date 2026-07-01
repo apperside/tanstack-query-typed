@@ -33,7 +33,7 @@ const features = [
   {
     icon: IconPlug,
     title: 'Drop-in wrappers',
-    body: "useAppQuery and useAppMutation mirror TanStack's own signatures. Swap them in and keep everything else the same.",
+    body: "useQuery, useMutation, useIsFetching and useIsMutating mirror TanStack's names. Point your import at tanstack-query-typed and your keys, payloads and responses become fully typed.",
   },
   {
     icon: IconBraces,

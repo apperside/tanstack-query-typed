@@ -5,11 +5,16 @@
  * package (only `dist` is shipped). Each `@ts-expect-error` line asserts that a
  * misuse is rejected by the compiler — if the typing ever regresses, the build
  * fails because the expected error disappears.
+ *
+ * The hooks share the same names as `@tanstack/react-query` — only the import
+ * path changes; everything else is identical, plus full typing.
  */
 import {
-  useAppMutation,
-  useAppQuery,
-  useAppQueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useIsFetching,
+  useIsMutating,
 } from 'tanstack-query-typed';
 
 // Register the app's mutations and queries via declaration merging.
@@ -41,58 +46,58 @@ declare module 'tanstack-query-typed' {
 
 export function demo() {
   // ✅ correct key + extraKeys; `vars` and the resolved data are inferred.
-  const updateUser = useAppMutation(['updateUser', { tenantId: 't-1' }], {
+  const updateUser = useMutation(['updateUser', { tenantId: 't-1' }], {
     mutationFn: (vars) => Promise.resolve({ updatedAt: `${vars.id}-${vars.name}` }),
   });
   updateUser.mutate({ id: '1', name: 'Ada' });
 
   // ✅ entry without `extraKeys` -> key is `['logout']` only.
-  const logout = useAppMutation(['logout'], {
+  const logout = useMutation(['logout'], {
     mutationFn: () => Promise.resolve({ ok: true as const }),
   });
   logout.mutate({});
 
   // @ts-expect-error – missing the required `extraKeys` segment.
-  useAppMutation(['updateUser']);
+  useMutation(['updateUser']);
 
   // @ts-expect-error – `logout` declares no `extraKeys`, so a second segment is invalid.
-  useAppMutation(['logout', { tenantId: 't-1' }]);
+  useMutation(['logout', { tenantId: 't-1' }]);
 
   // @ts-expect-error – unknown mutation name.
-  useAppMutation(['nope']);
+  useMutation(['nope']);
 
   // @ts-expect-error – wrong payload type (`id` must be a string).
   updateUser.mutate({ id: 1, name: 'Ada' });
 
   // ✅ query with `extraKeys`; `ctx.queryKey` is the typed tuple.
-  const user = useAppQuery(['fetchUser', { userId: 'u-1' }], {
+  const user = useQuery(['fetchUser', { userId: 'u-1' }], {
     queryFn: (ctx) =>
       Promise.resolve({ id: ctx.queryKey[1].userId, name: 'Ada' }),
   });
 
   // ✅ query without `extraKeys`; key is `['fetchSettings']` only.
-  const settings = useAppQuery(['fetchSettings'], {
+  const settings = useQuery(['fetchSettings'], {
     queryFn: () => Promise.resolve({ theme: 'light' as const }),
   });
 
   // ✅ `select` narrows `data` independently of the registered response.
-  const userName = useAppQuery(['fetchUser', { userId: 'u-1' }], {
+  const userName = useQuery(['fetchUser', { userId: 'u-1' }], {
     queryFn: (ctx) =>
       Promise.resolve({ id: ctx.queryKey[1].userId, name: 'Ada' }),
     select: (data) => data.name,
   });
 
   // @ts-expect-error – missing required `extraKeys` segment for `fetchUser`.
-  useAppQuery(['fetchUser']);
+  useQuery(['fetchUser']);
 
   // @ts-expect-error – `fetchSettings` declares no `extraKeys`.
-  useAppQuery(['fetchSettings', { userId: 'u-1' }]);
+  useQuery(['fetchSettings', { userId: 'u-1' }]);
 
   // @ts-expect-error – unknown query name.
-  useAppQuery(['nope']);
+  useQuery(['nope']);
 
   // --- Typed QueryClient ------------------------------------------------------
-  const qc = useAppQueryClient();
+  const qc = useQueryClient();
 
   // ✅ read cached data with full type information.
   const cached: { id: string; name: string } | undefined = qc.getQueryData([
@@ -125,5 +130,38 @@ export function demo() {
   // @ts-expect-error – `fetchSettings` declares no `extraKeys`.
   qc.getQueryData(['fetchSettings', { userId: 'u-1' }]);
 
-  return { updateUser, logout, user, settings, userName, cached };
+  // --- Counting in-flight queries / mutations ---------------------------------
+  // Both hooks return `number`; the filter key is checked against the registry.
+  const fetchingAll: number = useIsFetching();
+  const fetchingUser: number = useIsFetching({ queryKey: ['fetchUser'] }); // by name
+  const fetchingOneUser: number = useIsFetching({
+    queryKey: ['fetchUser', { userId: 'u-1' }],
+  }); // full key
+
+  const mutatingAll: number = useIsMutating();
+  const savingUser: number = useIsMutating({ mutationKey: ['updateUser'] }); // by name
+  const savingOneUser: number = useIsMutating({
+    mutationKey: ['updateUser', { tenantId: 't-1' }],
+  }); // full key
+
+  // @ts-expect-error – unknown query name.
+  useIsFetching({ queryKey: ['nope'] });
+
+  // @ts-expect-error – unknown mutation name.
+  useIsMutating({ mutationKey: ['nope'] });
+
+  return {
+    updateUser,
+    logout,
+    user,
+    settings,
+    userName,
+    cached,
+    fetchingAll,
+    fetchingUser,
+    fetchingOneUser,
+    mutatingAll,
+    savingUser,
+    savingOneUser,
+  };
 }
