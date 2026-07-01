@@ -8,7 +8,7 @@ export const heroSnippet = `import { useQuery } from 'tanstack-query-typed';
 
 // 1 — Declare your query once, in a central registry
 declare module 'tanstack-query-typed' {
-  interface AppQueriesMap {
+  interface AppQueriesRegistry {
     fetchUser: {
       response: { id: string; name: string };
       extraKeys: { userId: string };
@@ -50,7 +50,7 @@ qc.invalidateQueries({ queryKey: ['userz'] }); //     ❌ unknown query name
 export const declareSnippet = `import 'tanstack-query-typed';
 
 declare module 'tanstack-query-typed' {
-  interface AppMutationsMap {
+  interface AppMutationsRegistry {
     updateUser: {
       payload: { id: string; name: string };
       response: { updatedAt: string };
@@ -62,7 +62,7 @@ declare module 'tanstack-query-typed' {
     };
   }
 
-  interface AppQueriesMap {
+  interface AppQueriesRegistry {
     fetchUser: {
       response: { id: string; name: string };
       extraKeys: { userId: string };

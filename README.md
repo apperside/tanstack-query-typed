@@ -53,7 +53,7 @@ This package is **ESM-only**.
 
 ### 1. Register your queries and mutations
 
-Augment the `AppMutationsMap` and `AppQueriesMap` interfaces via
+Augment the `AppMutationsRegistry` and `AppQueriesRegistry` interfaces via
 [declaration merging](https://www.typescriptlang.org/docs/handbook/declaration-merging.html).
 Put this somewhere that is part of your TypeScript program (e.g. `src/app-tanstack.d.ts`):
 
@@ -61,7 +61,7 @@ Put this somewhere that is part of your TypeScript program (e.g. `src/app-tansta
 import 'tanstack-query-typed';
 
 declare module 'tanstack-query-typed' {
-  interface AppMutationsMap {
+  interface AppMutationsRegistry {
     updateUser: {
       payload: { id: string; name: string };
       response: { updatedAt: string };
@@ -74,7 +74,7 @@ declare module 'tanstack-query-typed' {
     };
   }
 
-  interface AppQueriesMap {
+  interface AppQueriesRegistry {
     fetchUser: {
       response: { id: string; name: string };
       extraKeys: { userId: string };
@@ -163,7 +163,7 @@ import { useQueryClient } from 'tanstack-query-typed';
 function Example() {
   const qc = useQueryClient();
 
-  // Read cached data — return type comes from `AppQueriesMap`.
+  // Read cached data — return type comes from `AppQueriesRegistry`.
   const user = qc.getQueryData(['fetchUser', { userId: '1' }]);
   //    ^? { id: string; name: string } | undefined
 
@@ -303,11 +303,11 @@ from a specific client instead of the context one.
 
 ### Exported types
 
-Mutations: `AppMutationsMap`, `AppMutationKey<K>`,
+Mutations: `AppMutationsRegistry`, `AppMutationKey<K>`,
 `AppMutationOptions<K, TData, TError, TContext>`, `MutationPayload<K>`,
 `MutationResponse<K>`, `MutationExtraKeys<K>`.
 
-Queries: `AppQueriesMap`, `AppQueryKey<K>`,
+Queries: `AppQueriesRegistry`, `AppQueryKey<K>`,
 `AppQueryOptions<K, TQueryFnData, TError, TData>`, `QueryResponse<K>`,
 `QueryExtraKeys<K>`.
 

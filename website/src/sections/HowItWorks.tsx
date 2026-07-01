@@ -8,7 +8,7 @@ const steps = [
   {
     n: '01',
     title: 'Declare your registry',
-    body: 'Augment AppQueriesMap and AppMutationsMap once via declaration merging. Each entry names its response, payload and any extra key segments.',
+    body: 'Augment AppQueriesRegistry and AppMutationsRegistry once via declaration merging. Each entry names its response, payload and any extra key segments.',
     filename: 'app-tanstack.d.ts',
     code: declareSnippet,
   },

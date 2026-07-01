@@ -14,23 +14,23 @@
 export const LIB_DTS = `
 declare module 'tanstack-query-typed' {
   /** Augment these via \`declare module 'tanstack-query-typed'\` to register your app. */
-  export interface AppMutationsMap {}
-  export interface AppQueriesMap {}
+  export interface AppMutationsRegistry {}
+  export interface AppQueriesRegistry {}
 
-  export type MutationPayload<K extends keyof AppMutationsMap> =
-    AppMutationsMap[K] extends { payload: infer P } ? P : void;
-  export type MutationResponse<K extends keyof AppMutationsMap> =
-    AppMutationsMap[K] extends { response: infer R } ? R : unknown;
-  export type MutationExtraKeys<K extends keyof AppMutationsMap> =
-    AppMutationsMap[K] extends { extraKeys: infer E } ? E : never;
-  export type AppMutationKey<K extends keyof AppMutationsMap> =
+  export type MutationPayload<K extends keyof AppMutationsRegistry> =
+    AppMutationsRegistry[K] extends { payload: infer P } ? P : void;
+  export type MutationResponse<K extends keyof AppMutationsRegistry> =
+    AppMutationsRegistry[K] extends { response: infer R } ? R : unknown;
+  export type MutationExtraKeys<K extends keyof AppMutationsRegistry> =
+    AppMutationsRegistry[K] extends { extraKeys: infer E } ? E : never;
+  export type AppMutationKey<K extends keyof AppMutationsRegistry> =
     [MutationExtraKeys<K>] extends [never] ? [K] : [K, MutationExtraKeys<K>];
 
-  export type QueryResponse<K extends keyof AppQueriesMap> =
-    AppQueriesMap[K] extends { response: infer R } ? R : unknown;
-  export type QueryExtraKeys<K extends keyof AppQueriesMap> =
-    AppQueriesMap[K] extends { extraKeys: infer E } ? E : never;
-  export type AppQueryKey<K extends keyof AppQueriesMap> =
+  export type QueryResponse<K extends keyof AppQueriesRegistry> =
+    AppQueriesRegistry[K] extends { response: infer R } ? R : unknown;
+  export type QueryExtraKeys<K extends keyof AppQueriesRegistry> =
+    AppQueriesRegistry[K] extends { extraKeys: infer E } ? E : never;
+  export type AppQueryKey<K extends keyof AppQueriesRegistry> =
     [QueryExtraKeys<K>] extends [never] ? [K] : [K, QueryExtraKeys<K>];
 
   export interface QueryResult<TData> {
@@ -39,14 +39,14 @@ declare module 'tanstack-query-typed' {
     isError: boolean;
     error: Error | null;
   }
-  export interface MutationResult<K extends keyof AppMutationsMap> {
+  export interface MutationResult<K extends keyof AppMutationsRegistry> {
     mutate: (variables: MutationPayload<K>) => void;
     mutateAsync: (variables: MutationPayload<K>) => Promise<MutationResponse<K>>;
     data: MutationResponse<K> | undefined;
     isPending: boolean;
   }
 
-  export function useQuery<K extends keyof AppQueriesMap, TData = QueryResponse<K>>(
+  export function useQuery<K extends keyof AppQueriesRegistry, TData = QueryResponse<K>>(
     queryKey: AppQueryKey<K>,
     options?: {
       queryFn?: (ctx: { queryKey: AppQueryKey<K> }) => QueryResponse<K> | Promise<QueryResponse<K>>;
@@ -55,7 +55,7 @@ declare module 'tanstack-query-typed' {
     },
   ): QueryResult<TData>;
 
-  export function useMutation<K extends keyof AppMutationsMap>(
+  export function useMutation<K extends keyof AppMutationsRegistry>(
     mutationKey: AppMutationKey<K>,
     options?: {
       mutationFn?: (variables: MutationPayload<K>) => MutationResponse<K> | Promise<MutationResponse<K>>;
@@ -70,7 +70,7 @@ export const SEED_CODE = `import { useQuery, useMutation } from 'tanstack-query-
 
 // 1. Register your queries and mutations once, by name.
 declare module 'tanstack-query-typed' {
-  interface AppQueriesMap {
+  interface AppQueriesRegistry {
     fetchUser: {
       response: { id: string; name: string };
       extraKeys: { userId: string };
@@ -80,7 +80,7 @@ declare module 'tanstack-query-typed' {
       // no extraKeys -> the key is just ['fetchSettings']
     };
   }
-  interface AppMutationsMap {
+  interface AppMutationsRegistry {
     updateUser: {
       payload: { id: string; name: string };
       response: { updatedAt: string };

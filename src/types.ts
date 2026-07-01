@@ -16,7 +16,7 @@ import type { UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
  *
  * @example
  * declare module 'tanstack-query-typed' {
- *   interface AppMutationsMap {
+ *   interface AppMutationsRegistry {
  *     updateUser: {
  *       payload: { id: string; name: string };
  *       response: { updatedAt: string };
@@ -30,34 +30,34 @@ import type { UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
  *   }
  * }
  */
-export interface AppMutationsMap {}
+export interface AppMutationsRegistry {}
 
 /** The variables (payload) accepted by mutation `K`. Falls back to `void`. */
-export type MutationPayload<K extends keyof AppMutationsMap> =
-  AppMutationsMap[K] extends { payload: infer P } ? P : void;
+export type MutationPayload<K extends keyof AppMutationsRegistry> =
+  AppMutationsRegistry[K] extends { payload: infer P } ? P : void;
 
 /** The data returned by mutation `K`. Falls back to `unknown`. */
-export type MutationResponse<K extends keyof AppMutationsMap> =
-  AppMutationsMap[K] extends { response: infer R } ? R : unknown;
+export type MutationResponse<K extends keyof AppMutationsRegistry> =
+  AppMutationsRegistry[K] extends { response: infer R } ? R : unknown;
 
 /** The extra key segment for mutation `K`, or `never` when none is declared. */
-export type MutationExtraKeys<K extends keyof AppMutationsMap> =
-  AppMutationsMap[K] extends { extraKeys: infer E } ? E : never;
+export type MutationExtraKeys<K extends keyof AppMutationsRegistry> =
+  AppMutationsRegistry[K] extends { extraKeys: infer E } ? E : never;
 
 /**
  * The strongly typed mutation key for mutation `K`:
  * `[K]` when no `extraKeys` are declared, otherwise `[K, extraKeys]`.
  */
-export type AppMutationKey<K extends keyof AppMutationsMap> =
+export type AppMutationKey<K extends keyof AppMutationsRegistry> =
   [MutationExtraKeys<K>] extends [never] ? [K] : [K, MutationExtraKeys<K>];
 
 /**
  * Options for {@link useMutation}: the standard TanStack `UseMutationOptions`
  * with `mutationKey` removed (it is supplied as the first argument instead) and
- * `TData` / `TVariables` pre-bound from {@link AppMutationsMap}.
+ * `TData` / `TVariables` pre-bound from {@link AppMutationsRegistry}.
  */
 export type AppMutationOptions<
-  K extends keyof AppMutationsMap,
+  K extends keyof AppMutationsRegistry,
   TData = MutationResponse<K>,
   TError = Error,
   TContext = unknown,
@@ -89,7 +89,7 @@ export type AppMutationOptions<
  *
  * @example
  * declare module 'tanstack-query-typed' {
- *   interface AppQueriesMap {
+ *   interface AppQueriesRegistry {
  *     fetchUser: {
  *       response: { id: string; name: string };
  *       extraKeys: { userId: string };
@@ -101,34 +101,34 @@ export type AppMutationOptions<
  *   }
  * }
  */
-export interface AppQueriesMap {}
+export interface AppQueriesRegistry {}
 
 /** The data returned by query `K`. Falls back to `unknown`. */
-export type QueryResponse<K extends keyof AppQueriesMap> =
-  AppQueriesMap[K] extends { response: infer R } ? R : unknown;
+export type QueryResponse<K extends keyof AppQueriesRegistry> =
+  AppQueriesRegistry[K] extends { response: infer R } ? R : unknown;
 
 /** The extra key segment for query `K`, or `never` when none is declared. */
-export type QueryExtraKeys<K extends keyof AppQueriesMap> =
-  AppQueriesMap[K] extends { extraKeys: infer E } ? E : never;
+export type QueryExtraKeys<K extends keyof AppQueriesRegistry> =
+  AppQueriesRegistry[K] extends { extraKeys: infer E } ? E : never;
 
 /**
  * The strongly typed query key for query `K`:
  * `[K]` when no `extraKeys` are declared, otherwise `[K, extraKeys]`.
  */
-export type AppQueryKey<K extends keyof AppQueriesMap> =
+export type AppQueryKey<K extends keyof AppQueriesRegistry> =
   [QueryExtraKeys<K>] extends [never] ? [K] : [K, QueryExtraKeys<K>];
 
 /**
  * Options for {@link useQuery}: the standard TanStack `UseQueryOptions` with
  * `queryKey` removed (it is supplied as the first argument instead) and
- * `TQueryFnData` / `TQueryKey` pre-bound from {@link AppQueriesMap}.
+ * `TQueryFnData` / `TQueryKey` pre-bound from {@link AppQueriesRegistry}.
  *
  * `TData` defaults to `TQueryFnData` so the hook return matches the registered
  * response; provide a `select` transform (or override `TData` explicitly) to
  * derive a different shape.
  */
 export type AppQueryOptions<
-  K extends keyof AppQueriesMap,
+  K extends keyof AppQueriesRegistry,
   TQueryFnData = QueryResponse<K>,
   TError = Error,
   TData = TQueryFnData,
@@ -141,13 +141,13 @@ export type AppQueryOptions<
 
 /** Union of every registered mutation key (full `[K]` / `[K, extraKeys]`). */
 export type AnyAppMutationKey = {
-  [K in keyof AppMutationsMap]: AppMutationKey<K>;
-}[keyof AppMutationsMap];
+  [K in keyof AppMutationsRegistry]: AppMutationKey<K>;
+}[keyof AppMutationsRegistry];
 
 /** Union of every registered query key (full `[K]` / `[K, extraKeys]`). */
 export type AnyAppQueryKey = {
-  [K in keyof AppQueriesMap]: AppQueryKey<K>;
-}[keyof AppQueriesMap];
+  [K in keyof AppQueriesRegistry]: AppQueryKey<K>;
+}[keyof AppQueriesRegistry];
 
 /**
  * Union of every registered mutation key OR the just-name prefix `[K]`. Used
@@ -155,8 +155,8 @@ export type AnyAppQueryKey = {
  * its `extraKeys`.
  */
 export type AppMutationKeyOrPrefix = {
-  [K in keyof AppMutationsMap]: [K] | AppMutationKey<K>;
-}[keyof AppMutationsMap];
+  [K in keyof AppMutationsRegistry]: [K] | AppMutationKey<K>;
+}[keyof AppMutationsRegistry];
 
 /**
  * Union of every registered query key OR the just-name prefix `[K]`. Used for
@@ -164,5 +164,5 @@ export type AppMutationKeyOrPrefix = {
  * `extraKeys`.
  */
 export type AppQueryKeyOrPrefix = {
-  [K in keyof AppQueriesMap]: [K] | AppQueryKey<K>;
-}[keyof AppQueriesMap];
+  [K in keyof AppQueriesRegistry]: [K] | AppQueryKey<K>;
+}[keyof AppQueriesRegistry];

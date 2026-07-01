@@ -21,8 +21,8 @@ import type {
   AnyAppQueryKey,
   AppMutationKey,
   AppMutationKeyOrPrefix,
-  AppMutationsMap,
-  AppQueriesMap,
+  AppMutationsRegistry,
+  AppQueriesRegistry,
   AppQueryKey,
   MutationPayload,
   MutationResponse,
@@ -46,8 +46,8 @@ export type AppMutationFilters<
 };
 
 /**
- * `QueryClient` strongly typed against the {@link AppQueriesMap} and
- * {@link AppMutationsMap} registries.
+ * `QueryClient` strongly typed against the {@link AppQueriesRegistry} and
+ * {@link AppMutationsRegistry} registries.
  *
  * Identical to TanStack's `QueryClient` except every key-taking method accepts
  * only registered keys (or `[name]` prefixes), and return types narrow to the
@@ -96,17 +96,17 @@ export type TypedQueryClient = Omit<
 > & {
   // ----- Single-queryKey methods -----
 
-  getQueryData<K extends keyof AppQueriesMap>(
+  getQueryData<K extends keyof AppQueriesRegistry>(
     queryKey: AppQueryKey<K>,
   ): QueryResponse<K> | undefined;
 
-  setQueryData<K extends keyof AppQueriesMap>(
+  setQueryData<K extends keyof AppQueriesRegistry>(
     queryKey: AppQueryKey<K>,
     updater: Updater<QueryResponse<K> | undefined, QueryResponse<K> | undefined>,
     options?: SetDataOptions,
   ): QueryResponse<K> | undefined;
 
-  getQueryState<K extends keyof AppQueriesMap, TError = Error>(
+  getQueryState<K extends keyof AppQueriesRegistry, TError = Error>(
     queryKey: AppQueryKey<K>,
   ): QueryState<QueryResponse<K>, TError> | undefined;
 
@@ -143,7 +143,7 @@ export type TypedQueryClient = Omit<
   // ----- Options-based query methods -----
 
   fetchQuery<
-    K extends keyof AppQueriesMap,
+    K extends keyof AppQueriesRegistry,
     TError = Error,
     TData = QueryResponse<K>,
   >(
@@ -151,7 +151,7 @@ export type TypedQueryClient = Omit<
   ): Promise<TData>;
 
   prefetchQuery<
-    K extends keyof AppQueriesMap,
+    K extends keyof AppQueriesRegistry,
     TError = Error,
     TData = QueryResponse<K>,
   >(
@@ -159,7 +159,7 @@ export type TypedQueryClient = Omit<
   ): Promise<void>;
 
   ensureQueryData<
-    K extends keyof AppQueriesMap,
+    K extends keyof AppQueriesRegistry,
     TError = Error,
     TData = QueryResponse<K>,
   >(
@@ -169,7 +169,7 @@ export type TypedQueryClient = Omit<
   // ----- Mutation defaults -----
 
   setMutationDefaults<
-    K extends keyof AppMutationsMap,
+    K extends keyof AppMutationsRegistry,
     TError = Error,
     TContext = unknown,
   >(
@@ -185,7 +185,7 @@ export type TypedQueryClient = Omit<
     >,
   ): void;
 
-  getMutationDefaults<K extends keyof AppMutationsMap>(
+  getMutationDefaults<K extends keyof AppMutationsRegistry>(
     mutationKey: AppMutationKey<K>,
   ):
     | Omit<
@@ -216,7 +216,7 @@ export function asTypedQueryClient(client: QueryClient): TypedQueryClient {
 
 /**
  * React hook that returns the current `QueryClient` strongly typed against the
- * {@link AppQueriesMap} / {@link AppMutationsMap} registries. Mirrors TanStack's
+ * {@link AppQueriesRegistry} / {@link AppMutationsRegistry} registries. Mirrors TanStack's
  * `useQueryClient` — pass an explicit client to override the context.
  *
  * @example

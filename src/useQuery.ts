@@ -1,7 +1,7 @@
 import { useQuery as useTanstackQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import type {
-  AppQueriesMap,
+  AppQueriesRegistry,
   AppQueryKey,
   AppQueryOptions,
   QueryResponse,
@@ -9,7 +9,7 @@ import type {
 
 /**
  * A thin wrapper around TanStack Query's `useQuery` that enforces strongly
- * typed query keys and responses based on the {@link AppQueriesMap} registry.
+ * typed query keys and responses based on the {@link AppQueriesRegistry} registry.
  *
  * The query name (and its `extraKeys`, when declared) are type-checked through
  * the first argument; the registered `response` becomes the default
@@ -31,7 +31,7 @@ import type {
  * });
  */
 export function useQuery<
-  K extends keyof AppQueriesMap,
+  K extends keyof AppQueriesRegistry,
   TQueryFnData = QueryResponse<K>,
   TError = Error,
   TData = TQueryFnData,

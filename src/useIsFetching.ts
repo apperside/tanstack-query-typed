@@ -8,7 +8,7 @@ import type { AnyAppQueryKey } from './types';
 
 /**
  * A thin wrapper around TanStack Query's `useIsFetching` whose `filters.queryKey`
- * is strongly typed against the {@link AppQueriesMap} registry.
+ * is strongly typed against the {@link AppQueriesRegistry} registry.
  *
  * Returns the number of queries currently fetching, optionally narrowed by
  * `filters`. The `queryKey` filter accepts a full registered key or a `[name]`

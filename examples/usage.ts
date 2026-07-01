@@ -19,7 +19,7 @@ import {
 
 // Register the app's mutations and queries via declaration merging.
 declare module 'tanstack-query-typed' {
-  interface AppMutationsMap {
+  interface AppMutationsRegistry {
     updateUser: {
       payload: { id: string; name: string };
       response: { updatedAt: string };
@@ -32,7 +32,7 @@ declare module 'tanstack-query-typed' {
     };
   }
 
-  interface AppQueriesMap {
+  interface AppQueriesRegistry {
     fetchUser: {
       response: { id: string; name: string };
       extraKeys: { userId: string };

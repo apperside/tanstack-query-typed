@@ -3,14 +3,14 @@ import { useMutation as useTanstackMutation, type UseMutationResult } from '@tan
 import type {
   AppMutationKey,
   AppMutationOptions,
-  AppMutationsMap,
+  AppMutationsRegistry,
   MutationPayload,
   MutationResponse,
 } from './types';
 
 /**
  * A thin wrapper around TanStack Query's `useMutation` that enforces strongly
- * typed mutation keys, payloads and responses based on the {@link AppMutationsMap}
+ * typed mutation keys, payloads and responses based on the {@link AppMutationsRegistry}
  * registry.
  *
  * The mutation name (and its `extraKeys`, when declared) are type-checked through
@@ -28,7 +28,7 @@ import type {
  * mutation.mutate({ id: '1', name: 'Ada' }); // payload is type-checked
  */
 export function useMutation<
-  K extends keyof AppMutationsMap,
+  K extends keyof AppMutationsRegistry,
   TData = MutationResponse<K>,
   TError = Error,
   TContext = unknown,

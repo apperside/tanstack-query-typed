@@ -7,7 +7,7 @@ import type { AppMutationFilters } from './typedQueryClient';
 
 /**
  * A thin wrapper around TanStack Query's `useIsMutating` whose `filters.mutationKey`
- * is strongly typed against the {@link AppMutationsMap} registry.
+ * is strongly typed against the {@link AppMutationsRegistry} registry.
  *
  * Returns the number of mutations currently running, optionally narrowed by
  * `filters`. The `mutationKey` filter accepts a full registered key or a `[name]`

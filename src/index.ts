@@ -5,13 +5,13 @@ export { useIsMutating } from './useIsMutating';
 export { asTypedQueryClient, useQueryClient } from './typedQueryClient';
 
 export type {
-  AppMutationsMap,
+  AppMutationsRegistry,
   AppMutationKey,
   AppMutationOptions,
   MutationPayload,
   MutationResponse,
   MutationExtraKeys,
-  AppQueriesMap,
+  AppQueriesRegistry,
   AppQueryKey,
   AppQueryOptions,
   QueryResponse,

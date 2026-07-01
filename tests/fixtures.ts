@@ -11,7 +11,7 @@
  */
 
 declare module 'tanstack-query-typed' {
-  interface AppMutationsMap {
+  interface AppMutationsRegistry {
     fixtureWithExtra: {
       payload: { amount: number };
       response: { ok: true };
@@ -23,7 +23,7 @@ declare module 'tanstack-query-typed' {
     };
   }
 
-  interface AppQueriesMap {
+  interface AppQueriesRegistry {
     fixtureQueryWithExtra: {
       response: { id: string; label: string };
       extraKeys: { id: string };
