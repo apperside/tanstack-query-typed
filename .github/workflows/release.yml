@@ -1,0 +1,48 @@
+# Stages a new npm version when a `v*` tag is pushed (e.g. by `npm version minor && git push --follow-tags`).
+#
+# Uses npm trusted publishing (OIDC, no npm token) restricted to *staged* publishing:
+# the version stays uninstallable until a maintainer approves it on npmjs.com
+# (Staged Packages tab) or with `npm stage approve <stage-id>`, behind a 2FA check.
+# The trusted publisher on npm is configured for this exact file name and the `npm` environment.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write # OIDC token for npm trusted publishing
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  stage:
+    environment: npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Update npm (staged publishing needs npm >= 11.15.0)
+        run: npm install -g npm@^11.15.0
+      - name: Check the tag matches package.json
+        run: |
+          expected="v$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version ($expected)"
+            exit 1
+          fi
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck and build
+        run: npm run build
+      - name: Stage the release on npm
+        run: npm stage publish
