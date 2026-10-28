@@ -8,8 +8,8 @@ A tiny, fully-typed layer over [TanStack Query](https://tanstack.com/query) that
 
 [Website](https://apperside.github.io/tanstack-query-typed/) · [Live Playground](https://apperside.github.io/tanstack-query-typed/playground)
 
-The hooks keep the **same names as TanStack Query** — `useQuery`, `useMutation`,
-`useQueryClient`, `useIsFetching`, `useIsMutating`. Change only the import path
+The hooks keep the **same names as TanStack Query** — `useQuery`, `useSuspenseQuery`,
+`useMutation`, `useQueryClient`, `useIsFetching`, `useIsMutating`. Change only the import path
 (`@tanstack/react-query` → `tanstack-query-typed`) and everything else about your
 code stays the same — you just gain full typing.
 
@@ -150,6 +150,54 @@ useQuery(['fetchSettings', { userId: 'x' }]); // ❌ `fetchSettings` has no `ext
 useQuery(['nope']);                            // ❌ unknown query name
 ```
 
+### Declare once, reuse everywhere: `appQueryOptions` / `appMutationOptions`
+
+The typed counterparts of TanStack's `queryOptions` / `mutationOptions`. Declare a
+query (or a mutation, optimistic updates included) **once** and pass the same
+definition to every consumer — the hooks, and the typed `QueryClient`'s
+`ensureQueryData` / `prefetchQuery` / `fetchQuery`. This is the natural fit for
+router loaders and SSR, where a query is prefetched in the loader and read again
+in the component.
+
+```ts
+import {
+  appMutationOptions,
+  appQueryOptions,
+  useMutation,
+  useSuspenseQuery,
+} from 'tanstack-query-typed';
+
+export const userQuery = (userId: string) =>
+  appQueryOptions(['fetchUser', { userId }], {
+    queryFn: (ctx) => api.getUser(ctx.queryKey[1].userId),
+  });
+
+export const updateUserMutation = appMutationOptions(['updateUser', { tenantId: 't-1' }], {
+  mutationFn: (vars) => api.updateUser(vars),
+});
+
+// route loader (e.g. TanStack Router) — `queryClient` is a TypedQueryClient
+loader: ({ context }) => context.queryClient.ensureQueryData(userQuery('1')),
+
+// component — reads the prefetched data, no second request
+const { data: user } = useSuspenseQuery(userQuery('1')); // `user` is always defined
+const updateUser = useMutation(updateUserMutation);
+```
+
+`useQuery`, `useSuspenseQuery` and `useMutation` accept either form: `(key, options)`
+or a single definition. Like TanStack's `queryOptions`, a definition's `queryFn`
+cannot be `skipToken` — use the `(key, options)` form for conditionally disabled queries.
+
+The definition's key is a plain typed tuple (no TanStack `DataTag`), so type it
+through the typed client: `asTypedQueryClient(queryClient)` / `useQueryClient()`.
+
+### `useSuspenseQuery`
+
+Mirrors TanStack's `useSuspenseQuery` with the same registry typing as `useQuery`.
+`data` is never `undefined`; loading and errors go to the nearest Suspense / error
+boundary. Like TanStack, its options have no `enabled`, `placeholderData` or
+`throwOnError`.
+
 ### 3. Use the typed `QueryClient`
 
 `useQueryClient()` returns the current `QueryClient` typed against your
@@ -278,6 +326,18 @@ A drop-in wrapper around TanStack's `useQuery`. Same conventions:
 
 Returns the standard `UseQueryResult`.
 
+### `useQuery(definition)` / `useSuspenseQuery(queryKey, options?)` / `useSuspenseQuery(definition)` / `useMutation(definition)`
+
+The single-argument form takes a definition from `appQueryOptions` /
+`appMutationOptions` (or any options object with a registered key). Return types
+are the same as the `(key, options)` form; `useSuspenseQuery` returns
+`UseSuspenseQueryResult`, whose `data` is always defined.
+
+### `appQueryOptions(queryKey, options?)` / `appMutationOptions(mutationKey, options?)`
+
+Zero-runtime helpers that merge the key into the options and return a typed,
+reusable definition (`AppQueryDefinition` / `AppMutationDefinition`).
+
 ### `useQueryClient(queryClient?)` / `asTypedQueryClient(client)`
 
 A React hook (and a plain cast helper, for non-React contexts) that returns
@@ -304,11 +364,14 @@ from a specific client instead of the context one.
 ### Exported types
 
 Mutations: `AppMutationsRegistry`, `AppMutationKey<K>`,
-`AppMutationOptions<K, TData, TError, TContext>`, `MutationPayload<K>`,
+`AppMutationOptions<K, TData, TError, TContext>`,
+`AppMutationDefinition<K, TData, TError, TContext>`, `MutationPayload<K>`,
 `MutationResponse<K>`, `MutationExtraKeys<K>`.
 
 Queries: `AppQueriesRegistry`, `AppQueryKey<K>`,
-`AppQueryOptions<K, TQueryFnData, TError, TData>`, `QueryResponse<K>`,
+`AppQueryOptions<K, TQueryFnData, TError, TData>`,
+`AppSuspenseQueryOptions<K, TQueryFnData, TError, TData>`,
+`AppQueryDefinition<K, TQueryFnData, TError, TData>`, `QueryResponse<K>`,
 `QueryExtraKeys<K>`.
 
 QueryClient: `TypedQueryClient`,
@@ -340,7 +403,7 @@ typing, so tests are pure compile-time assertions checked by `tsc --noEmit`:
   entries used across the suite). Global module-augmentation merging makes
   them visible from every `*.test-d.ts` file without an explicit import.
 - `tests/mutations.test-d.ts`, `tests/queries.test-d.ts`,
-  `tests/queryClient.test-d.ts` — one file per surface, each using
+  `tests/queryClient.test-d.ts`, `tests/definitions.test-d.ts` — one file per surface, each using
   [`expect-type`](https://github.com/mmkal/expect-type) for **positive**
   assertions (`expectTypeOf<X>().toEqualTypeOf<Y>()`).
 - `examples/usage.ts` uses `@ts-expect-error` for **negative** assertions —

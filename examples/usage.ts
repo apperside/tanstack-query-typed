@@ -9,9 +9,13 @@
  * The hooks share the same names as `@tanstack/react-query` — only the import
  * path changes; everything else is identical, plus full typing.
  */
+import { skipToken } from '@tanstack/react-query';
 import {
+  appMutationOptions,
+  appQueryOptions,
   useMutation,
   useQuery,
+  useSuspenseQuery,
   useQueryClient,
   useIsFetching,
   useIsMutating,
@@ -96,6 +100,34 @@ export function demo() {
   // @ts-expect-error – unknown query name.
   useQuery(['nope']);
 
+  // --- Reusable definitions + suspense -----------------------------------------
+
+  // ✅ declared once, reused by the hooks and the QueryClient (e.g. a loader).
+  const userQuery = (userId: string) =>
+    appQueryOptions(['fetchUser', { userId }], {
+      queryFn: (ctx) => Promise.resolve({ id: ctx.queryKey[1].userId, name: 'Ada' }),
+    });
+  const suspenseUser = useSuspenseQuery(userQuery('u-1')); // `data` is always defined
+  const logoutMutation = appMutationOptions(['logout'], {
+    mutationFn: () => Promise.resolve({ ok: true as const }),
+  });
+  const logoutAgain = useMutation(logoutMutation);
+
+  // @ts-expect-error – unknown query name.
+  appQueryOptions(['nope']);
+
+  // @ts-expect-error – a reusable definition cannot be disabled with `skipToken`.
+  appQueryOptions(['fetchSettings'], { queryFn: skipToken });
+
+  useSuspenseQuery(['fetchSettings'], {
+    queryFn: () => Promise.resolve({ theme: 'light' as const }),
+    // @ts-expect-error – suspense queries have no `enabled` option.
+    enabled: false,
+  });
+
+  // @ts-expect-error – unknown mutation name.
+  appMutationOptions(['nope']);
+
   // --- Typed QueryClient ------------------------------------------------------
   const qc = useQueryClient();
 
@@ -156,6 +188,8 @@ export function demo() {
     user,
     settings,
     userName,
+    suspenseUser,
+    logoutAgain,
     cached,
     fetchingAll,
     fetchingUser,
