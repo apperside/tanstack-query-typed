@@ -394,6 +394,20 @@ The root `tsconfig.json` is the **IDE / type-check** config — it includes
 builds against a separate minimal `tsconfig.build.json` (no path aliases, no
 `baseUrl`) so `.d.ts` generation isn't affected by the alias.
 
+### Releasing
+
+Releases are staged on npm by CI ([`.github/workflows/release.yml`](./.github/workflows/release.yml))
+through [trusted publishing](https://docs.npmjs.com/trusted-publishers) — no npm token is stored anywhere.
+
+```sh
+npm version minor          # or patch / major — bumps package.json, commits, tags vX.Y.Z
+git push --follow-tags     # CI typechecks, builds and runs `npm stage publish`
+```
+
+The staged version is not installable until a maintainer approves it, with 2FA, in the
+**Staged Packages** tab on npmjs.com or via `npm stage approve <stage-id>`.
+See [staged publishing](https://docs.npmjs.com/staged-publishing).
+
 ### Type tests
 
 This library has no runtime tests — the only thing worth testing here is the
