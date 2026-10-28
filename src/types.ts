@@ -1,4 +1,9 @@
-import type { UseMutationOptions, UseQueryOptions } from '@tanstack/react-query';
+import type {
+  SkipToken,
+  UseMutationOptions,
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+} from '@tanstack/react-query';
 
 /**
  * Registry of every mutation in your application.
@@ -136,6 +141,55 @@ export type AppQueryOptions<
   UseQueryOptions<TQueryFnData, TError, TData, AppQueryKey<K>>,
   'queryKey'
 >;
+
+/**
+ * Options for {@link useSuspenseQuery}: TanStack's `UseSuspenseQueryOptions`
+ * with `queryKey` removed and generics pre-bound from {@link AppQueriesRegistry}.
+ * Like TanStack, it has no `enabled` / `placeholderData` / `throwOnError`, and
+ * `queryFn` cannot be `skipToken`.
+ */
+export type AppSuspenseQueryOptions<
+  K extends keyof AppQueriesRegistry,
+  TQueryFnData = QueryResponse<K>,
+  TError = Error,
+  TData = TQueryFnData,
+> = Omit<
+  UseSuspenseQueryOptions<TQueryFnData, TError, TData, AppQueryKey<K>>,
+  'queryKey'
+>;
+
+/**
+ * A complete, reusable query definition returned by {@link appQueryOptions}.
+ *
+ * Like TanStack's `queryOptions`, `queryFn` excludes `skipToken`, so the same
+ * object is accepted by `useQuery`, `useSuspenseQuery` and the
+ * {@link TypedQueryClient}'s `ensureQueryData` / `prefetchQuery` / `fetchQuery`.
+ */
+export type AppQueryDefinition<
+  K extends keyof AppQueriesRegistry,
+  TQueryFnData = QueryResponse<K>,
+  TError = Error,
+  TData = TQueryFnData,
+> = Omit<AppQueryOptions<K, TQueryFnData, TError, TData>, 'queryFn'> & {
+  queryFn?: Exclude<
+    AppQueryOptions<K, TQueryFnData, TError, TData>['queryFn'],
+    SkipToken | undefined
+  >;
+  queryKey: AppQueryKey<K>;
+};
+
+/**
+ * A complete, reusable mutation definition returned by {@link appMutationOptions}:
+ * {@link AppMutationOptions} plus its typed `mutationKey`.
+ */
+export type AppMutationDefinition<
+  K extends keyof AppMutationsRegistry,
+  TData = MutationResponse<K>,
+  TError = Error,
+  TContext = unknown,
+> = AppMutationOptions<K, TData, TError, TContext> & {
+  mutationKey: AppMutationKey<K>;
+};
 
 // === Registry-wide unions ====================================================
 
